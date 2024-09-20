@@ -43,7 +43,6 @@ async def async_setup_platform(hass, config, add_devices, discovery_info=None):
         )])
 
 class Number(NumberEntity):
-    """Sequent Microsystems Multiio Switch"""
     def __init__(self, name, stack, type, chan, hass):
         generated_name = DOMAIN + str(stack) + "_" + type + "_" + str(chan)
         self._unique_id = generate_entity_id("number.{}", generated_name, hass=hass)
@@ -60,8 +59,9 @@ class Number(NumberEntity):
         self._step = SM_MAP[self._type]["step"]
         self._value = 0
         self.__SM__init()
+        ### CUSTOM_SETUP START
+        ### CUSTOM_SETUP END
 
-    ### Make API compatible if channel is not used or if it requires integer value
     def __SM__init(self):
         com = SM_MAP[self._type]["com"]
         self._SM = SM_API
@@ -73,10 +73,16 @@ class Number(NumberEntity):
                 def _aux2_SM_get(self, _):
                     return getattr(self, com["get"])()
                 self._SM_get = types.MethodType(_aux2_SM_get, self._SM)
-            if len(signature(self._SM_set).parameters) == 1:
-                def _aux2_SM_set(self, _, value):
-                    getattr(self, com["set"])(value)
-                self._SM_set = types.MethodType(_aux2_SM_set, self._SM)
+            if self._step == int(self._step) and self._min_value == int(self._min_value):
+                if len(signature(self._SM_set).parameters) == 1:
+                    def _aux2_SM_set(self, _, value):
+                        getattr(self, com["set"])(int(value))
+                    self._SM_set = types.MethodType(_aux2_SM_set, self._SM)
+            else:
+                if len(signature(self._SM_set).parameters) == 1:
+                    def _aux2_SM_set(self, _, value):
+                        getattr(self, com["set"])(value)
+                    self._SM_set = types.MethodType(_aux2_SM_set, self._SM)
         else:
             _SM_get = getattr(self._SM, com["get"])
             if len(signature(_SM_get).parameters) == 1:
@@ -88,7 +94,7 @@ class Number(NumberEntity):
                     return _SM_get(self._stack, chan)
                 self._SM_get = _aux_SM_get
             _SM_set = getattr(self._SM, com["set"])
-            if self._step == int(self._step):
+            if self._step == int(self._step) and self._min_value == int(self._min_value):
                 if len(signature(_SM_set).parameters) == 2:
                     def _aux3_SM_set(_, value):
                         return _SM_set(self._stack, int(value))

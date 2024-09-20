@@ -40,16 +40,14 @@ class Sensor(SensorEntity):
         self._stack = int(stack)
         self._type = type
         self._chan = int(chan)
-        # Altering class so alln functions have the same format
         self._short_timeout = .05
         self._icons = DEFAULT_ICONS | SM_MAP[self._type].get("icon", {})
         self._icon = self._icons["off"]
         self._uom = SM_MAP[self._type].get("uom", "")
         self._value = 0
         self.__SM__init()
-
-        # Custom setup END
-        ## END
+        ### CUSTOM_SETUP START
+        ### CUSTOM_SETUP END
 
     def __SM__init(self):
         com = SM_MAP[self._type]["com"]
