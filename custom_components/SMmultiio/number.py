@@ -15,6 +15,7 @@ from homeassistant.helpers.entity import generate_entity_id
 
 from . import (
         DOMAIN, CONF_STACK, CONF_TYPE, CONF_CHAN, CONF_NAME,
+        CONF_UPDATE_INTERVAL,
         COM_NOGET,
         SM_MAP, SM_API
 )
@@ -27,23 +28,23 @@ async def async_setup_platform(hass, config, add_devices, discovery_info=None):
     type=discovery_info.get(CONF_TYPE)
     if SM_MAP[type]["com"]["get"] == COM_NOGET:
         add_devices([Number_NOGET(
-            name=discovery_info.get(CONF_NAME, ""),
+            hass=hass,
+            name=discovery_info.get(CONF_NAME),
             stack=discovery_info.get(CONF_STACK, 0),
             type=discovery_info.get(CONF_TYPE),
             chan=discovery_info.get(CONF_CHAN),
-            hass=hass
         )])
     else:
         add_devices([Number(
-            name=discovery_info.get(CONF_NAME, ""),
+            hass=hass,
+            name=discovery_info.get(CONF_NAME),
             stack=discovery_info.get(CONF_STACK, 0),
             type=discovery_info.get(CONF_TYPE),
             chan=discovery_info.get(CONF_CHAN),
-            hass=hass
         )])
 
 class Number(NumberEntity):
-    def __init__(self, name, stack, type, chan, hass):
+    def __init__(self, hass, name, stack, type, chan):
         generated_name = DOMAIN + str(stack) + "_" + type + "_" + str(chan)
         self._unique_id = generate_entity_id("number.{}", generated_name, hass=hass)
         self._name = name or generated_name
