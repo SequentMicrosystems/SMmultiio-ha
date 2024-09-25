@@ -1,4 +1,6 @@
-"""Sequent Microsystems Multiio Integration"""
+FULL_NAME = "Multi-IO"
+LINK = "https://sequentmicrosystems.com/products/multi-io-8-layer-stackable-hat-for-raspberry-pi"
+
 
 import multiio
 API = multiio.SMmultiio

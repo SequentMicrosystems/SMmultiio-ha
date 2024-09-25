@@ -99,3 +99,43 @@ SMmultiio:
     - stack: 2
     - stack: 3
 ```
+
+- Only specific entities for different stack levels:
+
+```yaml
+SMmultiio:
+    - stack: 0
+      relay_1:
+      relay_3:
+      opto_1:
+        update_interval: 0.1
+    - stack: 2
+      relay:
+        chan_range: "1..8"
+      opto_cnt:
+        chan_range: "2..6"
+        update_interval: 1
+```
+
+[//]: # (__CUSTOM_README__ START)
+[//]: # (__CUSTOM_README__ END)
+
+### `configuration.yaml` entities
+
+Possible entities:
+```
+iout_1: -> iout_2:  (type: number)
+motor_1: (type: number)
+servo_1: -> servo_2:  (type: number)
+uout_1: -> uout_2:  (type: number)
+iin_1: -> iin_2:  (type: sensor)
+rtd_res_1: -> rtd_res_2:  (type: sensor)
+rtd_temp_1: -> rtd_temp_2:  (type: sensor)
+uin_1: -> uin_2:  (type: sensor)
+led_1: -> led_6:  (type: switch)
+relay_1: -> relay_2:  (type: switch)
+```
+
+Entity options:
+- `chan_range: "start..end"` (specify inclusive channel range)
+- `update_interval: seconds` (specify the update interval for `sensor` and `binary_sensor`, default 30s)
