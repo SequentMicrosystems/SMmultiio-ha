@@ -51,9 +51,10 @@ class DateTime(DateTimeEntity):
         self._icons = DEFAULT_ICONS | SM_MAP[self._type].get("icon", {})
         self._icon = self._icons["off"]
         self._uom = SM_MAP[self._type].get("uom", "")
-        self._value = datetime(2000, 1, 1, tzinfo=timezone.utc) # TODO: Change this
         self._remove_hooks = []
         self.__SM__init()
+        #self._value = datetime(2000, 1, 1, tzinfo=timezone.utc) # TODO: Change this
+        self._value = datetime(*self._SM_get(), tzinfo=timezone.utc)
         ### __CUSTOM_SETUP__ START
         ### __CUSTOM_SETUP__ END
 
