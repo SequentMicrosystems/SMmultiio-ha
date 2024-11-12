@@ -14,7 +14,7 @@ seamlessly with Home Assistant, bringing all your custom functionality into the 
 
 - [Install HACS video](https://youtu.be/Fl3lATWhQVM) for step 1.
 - [Enable I2C and Install file editor video](https://youtu.be/53Zj8NofS7k) for steps 2. and 3.
-- [Install and config card drivers video](https://youtu.be/yH2HKjm7j24) for steps 4. and 5.
+- [Install and config card drivers video](https://youtu.be/yH2HKjm7j24) for steps 4. and 5. (replace SMioplus-ha with SMmultiio-ha)
 
 #### Prerequirements
 
@@ -101,7 +101,7 @@ SMmultiio:
 
 - Only specific entities for different stack levels:
 
-> The following example is provided for illustrative purposes only and does not necessarily represent real entities.
+> !The following example is provided for illustrative purposes only and does NOT necessarily represent real entities!
 
 ```yaml
 SMmultiio:
@@ -124,7 +124,8 @@ SMmultiio:
 ### `configuration.yaml` entities
 
 Possible entities:
-```
+```yaml
+rtc_1: (type: datetime)
 iout_1: -> iout_2:  (type: number)
 motor_1: (type: number)
 servo_1: -> servo_2:  (type: number)

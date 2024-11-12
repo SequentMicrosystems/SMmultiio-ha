@@ -8,6 +8,15 @@ DOMAIN = "SMmultiio"
 NAME_PREFIX = "mio"
 
 SM_MAP = {
+    "datetime": {
+        "rtc": {
+                "chan_no": 1,
+                "com": {
+                    "get": "get_rtc",
+                    "set": "set_rtc",
+                },
+        },
+    },
     "sensor":  {
         "rtd_res": {
                 "chan_no": 2,
