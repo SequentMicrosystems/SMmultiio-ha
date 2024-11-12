@@ -14,7 +14,7 @@ from homeassistant.components.datetime import DateTimeEntity
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.event import async_track_time_interval
 import homeassistant.util.dt as ha_dt
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
 
 from . import (
         DOMAIN, CONF_STACK, CONF_TYPE, CONF_CHAN, CONF_NAME,
@@ -51,7 +51,7 @@ class DateTime(DateTimeEntity):
         self._icons = DEFAULT_ICONS | SM_MAP[self._type].get("icon", {})
         self._icon = self._icons["off"]
         self._uom = SM_MAP[self._type].get("uom", "")
-        self._value = datetime(2000, 1, 1) # TODO: Change this
+        self._value = datetime(2000, 1, 1, tzinfo=timezone.utc) # TODO: Change this
         self._remove_hooks = []
         self.__SM__init()
         ### __CUSTOM_SETUP__ START
@@ -92,7 +92,7 @@ class DateTime(DateTimeEntity):
         time.sleep(self._short_timeout)
         try:
             date_tuple = self._SM_get()
-            self._value = datetime(*date_tuple)
+            self._value = datetime(*date_tuple, tzinfo=timezone.utc)
             try:
                 requests.get("http://www.google.com", timeout=3)
                 has_internet = True
