@@ -76,7 +76,7 @@ class DateTime(DateTimeEntity):
 
     async def async_added_to_hass(self):
         new_hook = async_track_time_interval(
-                self.hass, self.async_update_ha_state, timedelta(seconds=self._update_interval)  # type: ignore[arg-type]
+                self.hass, self.async_update_ha_state, timedelta(seconds=self._update_interval)
         )
         self._remove_hooks.append(new_hook)
 
@@ -91,7 +91,7 @@ class DateTime(DateTimeEntity):
     def update(self):
         time.sleep(self._short_timeout)
         try:
-            date_tuple = self._SM_get(self._chan)
+            date_tuple = self._SM_get()
             self._value = datetime(*date_tuple)
             try:
                 requests.get("http://www.google.com", timeout=3)
