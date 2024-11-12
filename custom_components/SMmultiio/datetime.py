@@ -51,7 +51,7 @@ class DateTime(DateTimeEntity):
         self._icons = DEFAULT_ICONS | SM_MAP[self._type].get("icon", {})
         self._icon = self._icons["off"]
         self._uom = SM_MAP[self._type].get("uom", "")
-        self._value = 0
+        self._value = datetime(2000, 1, 1) # TODO: Change this
         self._remove_hooks = []
         self.__SM__init()
         ### __CUSTOM_SETUP__ START
@@ -107,7 +107,7 @@ class DateTime(DateTimeEntity):
         except Exception as ex:
             _LOGGER.error(DOMAIN + " %s update() failed, %e, %s, %s", self._type, ex, str(self._stack), str(self._chan))
             return
-        if self._value != 0:
+        if self._value != None: # Make this reflect online and offline
             self._icon = self._icons["on"]
         else:
             self._icon = self._icons["off"]
