@@ -17,6 +17,15 @@ SM_MAP = {
                 },
         },
     },
+    "binary_sensor": {
+        "opto_in": {
+                "chan_no": 4,
+                "uom": "",
+                "com": {
+                    "get": "get_opto",
+                },
+        },
+    },
     "sensor":  {
         "rtd_res": {
                 "chan_no": 2,
