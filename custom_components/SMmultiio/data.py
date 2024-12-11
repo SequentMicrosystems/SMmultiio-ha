@@ -56,7 +56,7 @@ SM_MAP = {
                 "chan_no": 2,
                 "uom": "V",
                 "com": {
-                    "get": "get_i_in",
+                    "get": "get_u_in",
                 },
                 "icon": {
                     "on": "mdi:flash-triangle",
