@@ -19,6 +19,7 @@ from datetime import timedelta, datetime, timezone
 from . import (
         DOMAIN, CONF_STACK, CONF_TYPE, CONF_CHAN, CONF_NAME,
         CONF_UPDATE_INTERVAL,
+        CONF_INTERNET_SYNC_INTERVAL,
         SM_MAP, SM_API
 )
 SM_MAP = SM_MAP["datetime"]
@@ -35,11 +36,12 @@ async def async_setup_platform(hass, config, add_devices, discovery_info=None):
         stack=discovery_info.get(CONF_STACK),
         type=discovery_info.get(CONF_TYPE),
         chan=discovery_info.get(CONF_CHAN),
-        update_interval=discovery_info.get(CONF_UPDATE_INTERVAL) or 30,
+        update_interval=discovery_info.get(CONF_UPDATE_INTERVAL) or 1,
+        internet_sync_interval=discovery_info.get(CONF_INTERNET_SYNC_INTERVAL) or 60,
 	)])
 
 class DateTime(DateTimeEntity):
-    def __init__(self, hass, name, stack, type, chan, update_interval):
+    def __init__(self, hass, name, stack, type, chan, update_interval, internet_sync_interval):
         generated_name = DOMAIN + str(stack) + "_" + type + "_" + str(chan)
         self._unique_id = generate_entity_id("datetime.{}", generated_name, hass=hass)
         self._name = name or generated_name
@@ -47,14 +49,15 @@ class DateTime(DateTimeEntity):
         self._type = type
         self._chan = int(chan)
         self._update_interval = float(update_interval)
+        self._internet_sync_interval = float(internet_sync_interval)
         self._short_timeout = .05
         self._icons = DEFAULT_ICONS | SM_MAP[self._type].get("icon", {})
         self._icon = self._icons["off"]
         self._uom = SM_MAP[self._type].get("uom", "")
         self._remove_hooks = []
         self.__SM__init()
-        #self._value = datetime(2000, 1, 1, tzinfo=timezone.utc) # TODO: Change this
-        self._value = datetime(*self._SM_get(), tzinfo=timezone.utc)
+        self._hass = hass;
+        self._value = datetime(*self._SM_get(), tzinfo=self._get_timezone())
         ### __CUSTOM_SETUP__ START
         ### __CUSTOM_SETUP__ END
 
@@ -80,6 +83,10 @@ class DateTime(DateTimeEntity):
                 self.hass, self.async_update_ha_state, timedelta(seconds=self._update_interval)
         )
         self._remove_hooks.append(new_hook)
+        new_hook = async_track_time_interval(
+                self.hass, self._internet_sync, timedelta(seconds=self._internet_sync_interval)
+        )
+        self._remove_hooks.append(new_hook)
 
     async def async_will_remove_from_hass(self):
         for remove_hook in self._remove_hooks:
@@ -89,22 +96,16 @@ class DateTime(DateTimeEntity):
     def should_poll(self): # type: ignore[override]
         return False
 
+    def _get_timezone(self):
+        configured_timezone = self._hass.config.time_zone
+        timezone = ha_dt.get_time_zone(configured_timezone)
+        return timezone
+
     def update(self):
         time.sleep(self._short_timeout)
         try:
             date_tuple = self._SM_get()
-            self._value = datetime(*date_tuple, tzinfo=timezone.utc)
-            try:
-                requests.get("http://www.google.com", timeout=3)
-                has_internet = True
-            except requests.ConnectionError:
-                has_internet = False
-            if has_internet:
-                ha_time = ha_dt.now()
-                self._SM_set(ha_time.year, ha_time.month, ha_time.day, ha_time.hour, ha_time.minute, ha_time.second)
-                self._value = ha_time
-                _LOGGER.error(f"{DOMAIN} RTC updated to {self._value} from HA time")
-
+            self._value = datetime(*date_tuple, microsecond=1, tzinfo=self._get_timezone())
         except Exception as ex:
             _LOGGER.error(DOMAIN + " %s update() failed, %e, %s, %s", self._type, ex, str(self._stack), str(self._chan))
             return
@@ -113,9 +114,26 @@ class DateTime(DateTimeEntity):
         else:
             self._icon = self._icons["off"]
 
+    def _internet_sync(self, _):
+        time.sleep(self._short_timeout)
+        try:
+            requests.get("https://www.google.com", timeout=3)
+            has_internet = True
+        except requests.ConnectionError:
+            has_internet = False
+        if has_internet:
+            ha_time = ha_dt.now(self._get_timezone())
+            self._SM_set(ha_time.year, ha_time.month, ha_time.day, ha_time.hour, ha_time.minute, ha_time.second)
+            self._value = ha_time
+        else:
+            raise Exception("Error with internet sync")
+
+
     def set_value(self, value: datetime) -> None:
+        value = value.astimezone(self._get_timezone())
         self._SM_set(value.year, value.month, value.day, value.hour, value.minute, value.second)
         self._value = value
+        # Can't update homeassistant os date, must use this sensor instead..:( ??
 
     @property
     def unique_id(self): # type: ignore[override]

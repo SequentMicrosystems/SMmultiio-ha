@@ -112,7 +112,7 @@ SMmultiio:
         update_interval: 0.1
     - stack: 2
       relay:
-        chan_range: "1..8"
+        channels: "1,2,5"
       opto_cnt:
         chan_range: "2..6"
         update_interval: 1
@@ -125,6 +125,7 @@ SMmultiio:
 
 Possible entities:
 ```yaml
+opto_in_1: -> opto_in_4:  (type: binary_sensor)
 rtc_1: (type: datetime)
 iout_1: -> iout_2:  (type: number)
 motor_1: (type: number)
@@ -139,5 +140,15 @@ relay_1: -> relay_2:  (type: switch)
 ```
 
 Entity options:
+- `channels: "l,i,s,t"` (comma separated channel numbers)
 - `chan_range: "start..end"` (specify inclusive channel range)
-- `update_interval: seconds` (specify the update interval for `sensor` and `binary_sensor`, default 30s)
+- `update_interval: seconds` (specify the update interval for `sensor` and `binary_sensor`, default **30s**)
+- `update_interval: seconds` (specify the update interval for `datetime`(RTC), default **1s**)
+- `internet_sync_interval: seconds` (specify the internet sync interval for `datetime`(RTC), default **60s**)
+
+
+
+### Troubleshooting:
+
+1. Enities show up in the overview but do not function correctly
+    - Make sure the I2C was enabled correctly. You can check if I2C was initialized properly by running the HassOS I2C Configurator again and checking the logs.
